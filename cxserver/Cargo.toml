@@ -1,0 +1,11 @@
+[package]
+name = "cxserver"
+version = "0.1.0"
+authors = ["chuns <chuns.liu@foxmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3.1.0"
+actix-rt = "1.1.1"
