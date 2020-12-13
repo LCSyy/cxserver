@@ -11,7 +11,6 @@ const SERVER_ADDR: &'static str = "127.0.0.1:8002";
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-
     let pool = setup_db().await.unwrap();
     sqlx::query(&models()).execute(&pool).await.unwrap();
 
@@ -40,3 +39,4 @@ fn models() -> String {
 
     m
 }
+

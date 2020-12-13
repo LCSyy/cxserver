@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use actix_web::{web, Responder, HttpResponse};
 
 pub fn service_config(cfg: &mut web::ServiceConfig) {
@@ -11,26 +11,30 @@ pub fn service_config(cfg: &mut web::ServiceConfig) {
 
 async fn login(scs: web::Data<Mutex<SessionManager>>) -> impl Responder {
     let s = Session{
+        expire_time: 0,
         id: 213542353,
         name: String::from("lcs"),
         password: String::from("fsdfatfaq351rc1c42"),
         session_id: String::from("zz11"),
     };
 
-    scs.into_inner().lock().unwrap().add_session("1", s.clone());
+    scs.lock().unwrap().add_session("1", s.clone());
 
-    HttpResponse::Ok().body(format!("Login with {{ session id: {}, user: {} }}", s.session_id, s.name))
+    HttpResponse::Ok().json(format!("{{ session id: {}, user: {} }}", s.session_id, s.name))
 }
 
 async fn logout(scs: web::Data<Mutex<SessionManager>>) -> impl Responder {
-    match scs.into_inner().lock().unwrap().session("zz11") {
-        Some(s) => HttpResponse::Ok().body(format!("logut {}", s.session_id)),
-        None => HttpResponse::Ok().body("None")
+    match scs.lock().unwrap().remove_session("1") {
+        Some(s) => println!("delete session: {}", s.id),
+        None => println!("has no such session"),
     }
+
+    HttpResponse::Ok().json("{}")
 }
 
 #[derive(Clone)]
 pub struct Session {
+    pub expire_time: u64,
     pub id: u64,
     pub name: String,  
     pub password: String,
@@ -38,24 +42,25 @@ pub struct Session {
 }
 
 pub struct SessionManager {
-    sessions: Arc<Mutex<HashMap<String, Session>>>,
+    sessions: HashMap<String, Session>,
 }
 
 impl SessionManager {
     pub fn new() -> Self {
         SessionManager {
-            sessions: Arc::new(Mutex::new(HashMap::new()),)
+            sessions: HashMap::new(),
         }
     }
 
     pub fn add_session(&mut self, k: &str, s: Session) {
-        self.sessions.lock().unwrap().insert(k.to_owned(), s);
+        self.sessions.insert(k.to_owned(), s);
     }
 
-    pub fn session(&self, k: &str) -> Option<Session> {
-        match self.sessions.lock().unwrap().get(k) {
-            Some(s) => Some(s.clone()),
-            _ => None,
-        }
+    pub fn session(&self, k: &str) -> Option<&Session> {
+        self.sessions.get(k)
+    }
+
+    pub fn remove_session(&mut self, k: &str) -> Option<Session> {
+        self.sessions.remove(k)
     }
 }

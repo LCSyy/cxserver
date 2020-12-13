@@ -1,7 +1,7 @@
 use actix_web::{web, Scope, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::{SqlitePool};
-use sqlx::{Row, FromRow};
+use sqlx::FromRow;
 use crate::response::ResBody;
 
 pub const WRITER_BLOGS_MODEL: &'static str = r#"
