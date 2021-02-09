@@ -1,5 +1,5 @@
 use std::env;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::postgres::{PgPoolOptions,PgPool};
 use actix_web::{HttpServer,App};
 use actix_rt;
 use dotenv;
@@ -16,7 +16,7 @@ async fn main() -> std::io::Result<()> {
         .await.unwrap();
 
     HttpServer::new(move || App::new()
-        .data(pool.clone())
+        .data(PgPool::clone(&pool))
         .configure(service::init)
     )
     .bind(dotenv::var("PG_SERVER_ADDR").unwrap())?
